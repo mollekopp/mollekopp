@@ -1,0 +1,70 @@
+name: Profile assets
+
+# Snake daily, stats card on Mondays (or by hand). The repo is public, so GitHub-hosted
+# runners don't count against any minutes quota; the job stays small anyway: one
+# runner, no npm install, roughly half a minute.
+on:
+  schedule:
+    - cron: "23 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write # push the output branch
+  actions: write # keep-alive step
+
+concurrency:
+  group: profile-assets
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Restore last published assets
+        run: |
+          mkdir dist
+          if git fetch -q --depth=1 origin output:refs/remotes/origin/output; then git archive origin/output | tar -x -C dist; fi
+
+      - name: Snake
+        uses: Platane/snk/svg-only@d8f6715049803e982ee5ff501b6b9b7d5deeb09b # v3.5.0
+        with:
+          github_user_name: ${{ github.repository_owner }}
+          outputs: |
+            dist/snake.svg?color_snake=#ff7527&color_dots=#ebedf0,#b6dcef,#6cb6dc,#1a7fb8,#0f557c
+            dist/snake-dark.svg?palette=github-dark&color_snake=#ff7527&color_dots=#151b23,#0f3a52,#145a80,#1a7fb8,#4fa9de
+
+      - name: Stats card
+        # A broken token must not take the snake down with it.
+        continue-on-error: true
+        env:
+          STATS_TOKEN: ${{ secrets.STATS_TOKEN }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ] || [ "$(date -u +%u)" = 1 ] || [ ! -f dist/stats.svg ]; then
+            node scripts/stats.mjs dist
+          else
+            echo "Not Monday, keeping last week's card."
+          fi
+
+      - name: Publish to the output branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cd dist
+          git init -q -b output
+          git add -A
+          git -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" commit -qm "Update profile assets"
+          if [ "$(git rev-parse 'HEAD^{tree}')" = "$(git -C .. rev-parse -q --verify 'origin/output^{tree}' || true)" ]; then
+            echo "Nothing changed."
+            exit 0
+          fi
+          git push -qf "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" output
+
+      - name: Keep the schedule alive
+        # GitHub pauses schedules in public repos after 60 days without activity;
+        # re-enabling the workflow resets that timer without dummy commits.
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X PUT "repos/${GITHUB_REPOSITORY}/actions/workflows/profile.yml/enable"
