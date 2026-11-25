@@ -12,7 +12,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { renderCard } from './card.mjs';
 
-const USER = process.env.STATS_USER ?? 'cpalexh';
+const USER = process.env.STATS_USER ?? 'mollekopp';
 const TOKEN = process.env.STATS_TOKEN;
 const TZ = 'Europe/Berlin';
 const JSON_ONLY = process.argv.includes('--json');

@@ -7,8 +7,8 @@
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/cpalexh/cpalexh/refs/heads/output/stats-dark.svg">
-    <img alt="Stats from my private repos: commits, active days, longest streak, commit types and the hours I commit at" src="https://raw.githubusercontent.com/cpalexh/cpalexh/refs/heads/output/stats.svg" width="820">
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/mollekopp/mollekopp/refs/heads/output/stats-dark.svg">
+    <img alt="Stats from my private repos: commits, active days, longest streak, commit types and the hours I commit at" src="https://raw.githubusercontent.com/mollekopp/mollekopp/refs/heads/output/stats.svg" width="820">
   </picture>
 </p>
 
@@ -35,6 +35,6 @@ const myTechStack = {
 ```
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/cpalexh/cpalexh/refs/heads/output/snake-dark.svg">
-  <img alt="A snake eating my contribution graph" src="https://raw.githubusercontent.com/cpalexh/cpalexh/refs/heads/output/snake.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/mollekopp/mollekopp/refs/heads/output/snake-dark.svg">
+  <img alt="A snake eating my contribution graph" src="https://raw.githubusercontent.com/mollekopp/mollekopp/refs/heads/output/snake.svg">
 </picture>
