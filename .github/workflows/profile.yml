@@ -2,7 +2,7 @@ name: Profile assets
 
 # Snake and stats card daily (or by hand). The repo is public, so GitHub-hosted
 # runners don't count against any minutes quota; the job stays small anyway: one
-# runner, no npm install, a few minutes (the stats walk every branch of every repo).
+# runner, no npm install, roughly half a minute.
 on:
   schedule:
     - cron: "23 5 * * *"
@@ -19,7 +19,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 

@@ -141,7 +141,7 @@ function hourHistogram(data, t) {
 
 export function renderCard(data, mode) {
   const t = THEMES[mode];
-  const summary = `${number(data.commits)} commits by hand in ${number(data.repos)} repos since ${data.since}, all branches, ${data.activeDays} active days, longest streak ${data.longestStreak} days, peak hour ${data.peakHour}:00.`;
+  const summary = `${number(data.commits)} commits by hand in ${number(data.repos)} repos over the last 12 months, ${data.activeDays} active days, longest streak ${data.longestStreak} days, peak hour ${data.peakHour}:00.`;
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" role="img" aria-labelledby="title desc">
   <title id="title">Axel's commit stats</title>
@@ -157,7 +157,7 @@ export function renderCard(data, mode) {
   </style>
   <rect x="0.5" y="0.5" width="${WIDTH - 1}" height="${HEIGHT - 1}" rx="12" fill="${t.surface}" stroke="${t.border}"/>
   <text x="${PAD}" y="44" class="title" fill="${t.textPrimary}">Behind the private repos</text>
-  <text x="${PAD}" y="66" class="subtitle" fill="${t.textSecondary}">All branches since ${data.since}, numbers only. No code leaves the building.</text>
+  <text x="${PAD}" y="66" class="subtitle" fill="${t.textSecondary}">Last 12 months, numbers only. No code leaves the building.</text>
   <text x="${WIDTH - PAD}" y="44" class="small" text-anchor="end" fill="${t.textMuted}">updated ${escape(data.updated)}</text>
   ${tiles(data, t)}
   ${typeBreakdown(data, t)}

@@ -1,4 +1,4 @@
-// Builds the "honest stats" card from the metadata of all commits, on all branches.
+// Builds the "honest stats" card from commit metadata of the last 12 months.
 // Only aggregates end up in the SVG: no repo names, no commit messages, no code.
 //
 //   STATS_TOKEN=<token> node scripts/stats.mjs [outDir]          → <outDir>/stats.svg + stats-dark.svg
@@ -40,10 +40,6 @@ async function gh(path) {
     if (res.ok) return { body: await res.json(), next: /<([^>]+)>;\s*rel="next"/.exec(res.headers.get('link') ?? '')?.[1] };
     if (res.status === 409) return { body: [] }; // empty repository
     const rateLimited = res.headers.has('retry-after') || res.headers.get('x-ratelimit-remaining') === '0';
-    if (res.status >= 500 && attempt < 2) {
-      await sleep(5000);
-      continue;
-    }
     if ((res.status === 403 || res.status === 429) && rateLimited && attempt < 2) {
       await sleep((Number(res.headers.get('retry-after')) || 30) * 1000);
       continue;
@@ -77,42 +73,25 @@ async function pool(items, size, task) {
   return results;
 }
 
-// Commit search hits GitHub's secondary rate limits fast and only sees default
-// branches, so this walks every repo: all commits by USER on the default branch,
-// then each other branch's commits by USER until a page brings nothing new (the
-// list is newest first, a branch's own commits come before the shared history).
-const ref = (name) => name.split('/').map(encodeURIComponent).join('/');
-
-async function fetchRepo(repo, defaultBranch) {
-  const items = await ghAll(`/repos/${repo}/commits?author=${USER}&per_page=100`);
-  const known = new Set(items.map((item) => item.sha));
-  for (const branch of await ghAll(`/repos/${repo}/branches?per_page=100`)) {
-    if (branch.name === defaultBranch || known.has(branch.commit.sha)) continue;
-    try {
-      for (let url = `/repos/${repo}/commits?sha=${ref(branch.name)}&author=${USER}&per_page=100`; url; ) {
-        const { body, next } = await gh(url);
-        const fresh = body.filter((item) => !known.has(item.sha));
-        fresh.forEach((item) => known.add(item.sha));
-        items.push(...fresh);
-        url = fresh.length ? next : null;
-      }
-    } catch (error) {
-      if (error.status !== 404 && error.status !== 409 && error.status !== 422) throw error; // vanished branch
-    }
+// Commit search hits GitHub's secondary rate limits fast, so this walks every
+// repo pushed to in the last year and lists the default-branch commits by USER.
+async function fetchYear() {
+  const since = new Date(Date.now() - 365 * 86_400_000).toISOString();
+  const repos = [];
+  for (let url = '/user/repos?per_page=100&sort=pushed'; url; ) {
+    const { body, next } = await gh(url);
+    const recent = body.filter((repo) => repo.pushed_at >= since);
+    repos.push(...recent.map((repo) => repo.full_name));
+    url = recent.length === body.length ? next : null;
   }
-  return items
-    .filter((item) => item.parents.length < 2)
-    .map((item) => ({ sha: item.sha, repo, message: item.commit.message, date: new Date(item.commit.author.date) }));
-}
-
-async function fetchAll() {
-  const repos = await ghAll('/user/repos?per_page=100&affiliation=owner,collaborator,organization_member');
 
   // A repo the token may not read (org token policy, SSO) is skipped, not fatal.
   let skipped = 0;
   const perRepo = await pool(repos, 6, async (repo) => {
     try {
-      return await fetchRepo(repo.full_name, repo.default_branch);
+      return (await ghAll(`/repos/${repo}/commits?author=${USER}&since=${since}&per_page=100`))
+        .filter((item) => item.parents.length < 2)
+        .map((item) => ({ sha: item.sha, repo, message: item.commit.message, date: new Date(item.commit.author.date) }));
     } catch (error) {
       if (error.status !== 403 && error.status !== 404) throw error;
       skipped++;
@@ -121,7 +100,7 @@ async function fetchAll() {
   });
   if (skipped) console.log(`::warning::${skipped} of ${repos.length} repos not readable with STATS_TOKEN, skipped.`);
 
-  // The same commit can show up on several branches and in several repos (forks, mirrors).
+  // The same commit can show up in several repos (forks, mirrors).
   const bySha = new Map(perRepo.flat().map((commit) => [commit.sha, commit]));
   return [...bySha.values()]
     .map(({ repo, date, message }) => ({ repo, date, type: commitType(message) }))
@@ -196,7 +175,6 @@ function metrics(commits) {
 
   return {
     commits: commits.length,
-    since: commits.length ? local(new Date(Math.min(...commits.map((c) => c.date)))).day.slice(0, 4) : '–',
     repos: new Set(commits.map((c) => c.repo)).size,
     activeDays: days.size,
     longestStreak: longestStreak(days),
@@ -212,7 +190,7 @@ function metrics(commits) {
 
 // ---------------------------------------------------------------- run
 
-const data = metrics(await fetchAll());
+const data = metrics(await fetchYear());
 
 if (JSON_ONLY) {
   console.log(JSON.stringify(data, null, 2));
