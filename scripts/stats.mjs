@@ -75,22 +75,34 @@ async function pool(items, size, task) {
   return results;
 }
 
+// Work often sits on develop/staging for a while before it reaches the default
+// branch. Walking every feature branch costs ~3,000 API calls, these few don't.
+const LONG_LIVED_BRANCHES = new Set(['develop', 'development', 'dev', 'staging', 'stage']);
+
 // Commit search hits GitHub's secondary rate limits fast, so this walks every
-// repo pushed to in the last year and lists the default-branch commits by USER.
+// repo pushed to in the last year and lists the commits by USER on the default
+// branch and on the long-lived integration branches.
 async function fetchYear() {
   const repos = [];
   for (let url = '/user/repos?per_page=100&sort=pushed'; url; ) {
     const { body, next } = await gh(url);
     const recent = body.filter((repo) => repo.pushed_at >= SINCE);
-    repos.push(...recent.map((repo) => repo.full_name));
+    repos.push(...recent.map((repo) => ({ name: repo.full_name, defaultBranch: repo.default_branch })));
     url = recent.length === body.length ? next : null;
   }
 
   // A repo the token may not read (org token policy, SSO) is skipped, not fatal.
   let skipped = 0;
-  const perRepo = await pool(repos, 6, async (repo) => {
+  const perRepo = await pool(repos, 6, async ({ name: repo, defaultBranch }) => {
     try {
-      return (await ghAll(`/repos/${repo}/commits?author=${USER}&since=${SINCE}&per_page=100`))
+      const branches = (await ghAll(`/repos/${repo}/branches?per_page=100`))
+        .map((branch) => branch.name)
+        .filter((branch) => branch !== defaultBranch && LONG_LIVED_BRANCHES.has(branch));
+      const commits = [];
+      for (const branch of [defaultBranch, ...branches]) {
+        commits.push(...(await ghAll(`/repos/${repo}/commits?sha=${encodeURIComponent(branch)}&author=${USER}&since=${SINCE}&per_page=100`)));
+      }
+      return commits
         .filter((item) => item.parents.length < 2)
         .map((item) => ({ sha: item.sha, repo, message: item.commit.message, date: new Date(item.commit.author.date) }));
     } catch (error) {
@@ -101,7 +113,7 @@ async function fetchYear() {
   });
   if (skipped) console.log(`::warning::${skipped} of ${repos.length} repos not readable with STATS_TOKEN, skipped.`);
 
-  // The same commit can show up in several repos (forks, mirrors).
+  // The same commit shows up on several branches, and in forks and mirrors.
   const bySha = new Map(perRepo.flat().map((commit) => [commit.sha, commit]));
   return [...bySha.values()]
     .map(({ repo, date, message }) => ({ repo, date, type: commitType(message) }))
