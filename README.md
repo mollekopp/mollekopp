@@ -8,7 +8,7 @@
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/mollekopp/mollekopp/refs/heads/output/stats-dark.svg">
-    <img alt="Stats from my private repos: commits, active days, longest streak, commit types and the hours I commit at" src="https://raw.githubusercontent.com/mollekopp/mollekopp/refs/heads/output/stats.svg" width="820">
+    <img alt="Stats from my private repos: commits, active days, longest streak, pull requests merged, commit types and the hours I commit at" src="https://raw.githubusercontent.com/mollekopp/mollekopp/refs/heads/output/stats.svg" width="820">
   </picture>
 </p>
 

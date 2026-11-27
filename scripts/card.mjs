@@ -31,7 +31,11 @@ const THEMES = {
 };
 
 const WIDTH = 820;
-const HEIGHT = 376;
+const TILE_HEIGHT = 72;
+const TILE_GAP = 12;
+// The second tile row pushes everything below it down by one row.
+const ROW_OFFSET = TILE_HEIGHT + TILE_GAP;
+const HEIGHT = 376 + ROW_OFFSET;
 const PAD = 28;
 
 const number = (n) => n.toLocaleString('en-US');
@@ -48,22 +52,17 @@ function columnPath(x, baseline, width, height) {
   return `M${x},${baseline}V${top + r}Q${x},${top} ${x + r},${top}H${x + width - r}Q${x + width},${top} ${x + width},${top + r}V${baseline}Z`;
 }
 
-function tiles(data, t) {
-  const items = [
-    [number(data.commits), 'commits by hand'],
-    [number(data.activeDays), 'active days'],
-    [`${data.longestStreak} days`, 'longest streak'],
-    [number(data.repos), 'repos touched'],
-  ];
-  const gap = 12;
-  const width = (WIDTH - 2 * PAD - gap * (items.length - 1)) / items.length;
+// One row of tiles across the full width. Two tiles span exactly two columns of
+// a four-tile row, so stacked rows stay on the same grid.
+function tiles(items, y, t) {
+  const width = (WIDTH - 2 * PAD - TILE_GAP * (items.length - 1)) / items.length;
   return items
     .map(([value, label], i) => {
-      const x = PAD + i * (width + gap);
+      const x = PAD + i * (width + TILE_GAP);
       return `
-    <rect x="${x}" y="88" width="${width}" height="72" rx="8" fill="${t.surfaceRaised}"/>
-    <text x="${x + 16}" y="124" class="value" fill="${t.textPrimary}">${escape(value)}</text>
-    <text x="${x + 16}" y="146" class="label" fill="${t.textSecondary}">${escape(label)}</text>`;
+    <rect x="${x}" y="${y}" width="${width}" height="${TILE_HEIGHT}" rx="8" fill="${t.surfaceRaised}"/>
+    <text x="${x + 16}" y="${y + 36}" class="value" fill="${t.textPrimary}">${escape(value)}</text>
+    <text x="${x + 16}" y="${y + 58}" class="label" fill="${t.textSecondary}">${escape(label)}</text>`;
     })
     .join('');
 }
@@ -141,7 +140,17 @@ function hourHistogram(data, t) {
 
 export function renderCard(data, mode) {
   const t = THEMES[mode];
-  const summary = `${number(data.commits)} commits by hand in ${number(data.repos)} repos over the last 12 months, ${data.activeDays} active days, longest streak ${data.longestStreak} days, peak hour ${data.peakHour}:00.`;
+  const summary = `${number(data.commits)} commits by hand in ${number(data.repos)} repos over the last 12 months, ${data.activeDays} active days, longest streak ${data.longestStreak} days, ${number(data.prsMerged)} pull requests merged (${percent(data.mergeRate)} of those opened), peak hour ${data.peakHour}:00.`;
+  const commitTiles = [
+    [number(data.commits), 'commits by hand'],
+    [number(data.activeDays), 'active days'],
+    [`${data.longestStreak} days`, 'longest streak'],
+    [number(data.repos), 'repos touched'],
+  ];
+  const prTiles = [
+    [number(data.prsMerged), 'pull requests merged'],
+    [percent(data.mergeRate), `of ${number(data.prsOpened)} opened PRs merged`],
+  ];
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}" role="img" aria-labelledby="title desc">
   <title id="title">Axel's commit stats</title>
@@ -159,9 +168,12 @@ export function renderCard(data, mode) {
   <text x="${PAD}" y="44" class="title" fill="${t.textPrimary}">Behind the private repos</text>
   <text x="${PAD}" y="66" class="subtitle" fill="${t.textSecondary}">Last 12 months, numbers only. No code leaves the building.</text>
   <text x="${WIDTH - PAD}" y="44" class="small" text-anchor="end" fill="${t.textMuted}">updated ${escape(data.updated)}</text>
-  ${tiles(data, t)}
+  ${tiles(commitTiles, 88, t)}
+  ${tiles(prTiles, 88 + ROW_OFFSET, t)}
+  <g transform="translate(0 ${ROW_OFFSET})">
   ${typeBreakdown(data, t)}
   ${hourHistogram(data, t)}
+  </g>
   <text x="${PAD}" y="${HEIGHT - 20}" class="small" fill="${t.textMuted}">Deploy-bot commits are not counted.</text>
 </svg>
 `;
