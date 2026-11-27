@@ -1,5 +1,6 @@
-// Builds the "honest stats" card from commit metadata of the last 12 months.
-// Only aggregates end up in the SVG: no repo names, no commit messages, no code.
+// Builds the "honest stats" card from commit and pull request metadata of the
+// last 12 months. Only aggregates end up in the SVG: no repo names, no commit
+// messages, no code.
 //
 //   STATS_TOKEN=<token> node scripts/stats.mjs [outDir]          → <outDir>/stats.svg + stats-dark.svg
 //   STATS_TOKEN=<token> node scripts/stats.mjs --json            → metrics as JSON on stdout
@@ -17,6 +18,7 @@ const TOKEN = process.env.STATS_TOKEN;
 const TZ = 'Europe/Berlin';
 const JSON_ONLY = process.argv.includes('--json');
 const OUT_DIR = process.argv.slice(2).find((arg) => !arg.startsWith('--')) ?? 'dist';
+const SINCE = new Date(Date.now() - 365 * 86_400_000).toISOString();
 
 if (!TOKEN) {
   console.log('::notice::STATS_TOKEN not set, keeping the previous stats card.');
@@ -76,11 +78,10 @@ async function pool(items, size, task) {
 // Commit search hits GitHub's secondary rate limits fast, so this walks every
 // repo pushed to in the last year and lists the default-branch commits by USER.
 async function fetchYear() {
-  const since = new Date(Date.now() - 365 * 86_400_000).toISOString();
   const repos = [];
   for (let url = '/user/repos?per_page=100&sort=pushed'; url; ) {
     const { body, next } = await gh(url);
-    const recent = body.filter((repo) => repo.pushed_at >= since);
+    const recent = body.filter((repo) => repo.pushed_at >= SINCE);
     repos.push(...recent.map((repo) => repo.full_name));
     url = recent.length === body.length ? next : null;
   }
@@ -89,7 +90,7 @@ async function fetchYear() {
   let skipped = 0;
   const perRepo = await pool(repos, 6, async (repo) => {
     try {
-      return (await ghAll(`/repos/${repo}/commits?author=${USER}&since=${since}&per_page=100`))
+      return (await ghAll(`/repos/${repo}/commits?author=${USER}&since=${SINCE}&per_page=100`))
         .filter((item) => item.parents.length < 2)
         .map((item) => ({ sha: item.sha, repo, message: item.commit.message, date: new Date(item.commit.author.date) }));
     } catch (error) {
@@ -105,6 +106,21 @@ async function fetchYear() {
   return [...bySha.values()]
     .map(({ repo, date, message }) => ({ repo, date, type: commitType(message) }))
     .filter((commit) => commit.type !== 'auto');
+}
+
+// Pull requests only need counts, so the search's total_count is enough: one
+// request each, no 1,000-result cap. Both counts cover PRs opened in the window,
+// so the merge rate compares the same set.
+async function fetchPullRequests() {
+  const count = async (filter) => {
+    const q = encodeURIComponent(`is:pr author:${USER} created:>=${SINCE.slice(0, 10)} ${filter}`.trim());
+    const { body } = await gh(`/search/issues?q=${q}&per_page=1`);
+    if (body.incomplete_results) console.log('::warning::PR search returned incomplete results, counts may be low.');
+    return body.total_count;
+  };
+  const opened = await count('');
+  const merged = await count('is:merged');
+  return { opened, merged };
 }
 
 // ---------------------------------------------------------------- metrics
@@ -156,7 +172,7 @@ function longestStreak(days) {
   return best;
 }
 
-function metrics(commits) {
+function metrics(commits, prs) {
   const hours = Array(24).fill(0);
   const weekdays = {};
   const days = new Set();
@@ -184,13 +200,17 @@ function metrics(commits) {
     nightOwl: commits.length ? nightOwl / commits.length : 0,
     weekend: commits.length ? weekend / commits.length : 0,
     busiestWeekday: Object.entries(weekdays).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '–',
+    prsOpened: prs.opened,
+    prsMerged: prs.merged,
+    mergeRate: prs.opened ? prs.merged / prs.opened : 0,
     updated: new Date().toISOString().slice(0, 10),
   };
 }
 
 // ---------------------------------------------------------------- run
 
-const data = metrics(await fetchYear());
+const [commits, prs] = await Promise.all([fetchYear(), fetchPullRequests()]);
+const data = metrics(commits, prs);
 
 if (JSON_ONLY) {
   console.log(JSON.stringify(data, null, 2));
@@ -198,5 +218,5 @@ if (JSON_ONLY) {
   await mkdir(OUT_DIR, { recursive: true });
   await writeFile(join(OUT_DIR, 'stats.svg'), renderCard(data, 'light'));
   await writeFile(join(OUT_DIR, 'stats-dark.svg'), renderCard(data, 'dark'));
-  console.log(`Stats card written: ${data.commits} commits, ${data.repos} repos.`);
+  console.log(`Stats card written: ${data.commits} commits, ${data.repos} repos, ${data.prsMerged} PRs merged.`);
 }
