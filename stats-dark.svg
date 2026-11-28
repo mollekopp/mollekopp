@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="820" height="460" viewBox="0 0 820 460" role="img" aria-labelledby="title desc">
+  <title id="title">Axel's commit stats</title>
+  <desc id="desc">2,896 commits by hand in 25 repos over the last 12 months, 221 active days, longest streak 14 days, 974 pull requests merged (94 % of those opened), peak hour 9:00.</desc>
+  <style>
+    text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif; }
+    .title { font-size: 20px; font-weight: 700; }
+    .subtitle { font-size: 13px; }
+    .value { font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .label { font-size: 13px; }
+    .heading { font-size: 14px; font-weight: 600; }
+    .small { font-size: 12px; font-variant-numeric: tabular-nums; }
+  </style>
+  <rect x="0.5" y="0.5" width="819" height="459" rx="12" fill="#151b23" stroke="#30363d"/>
+  <text x="28" y="44" class="title" fill="#f5f1ee">Behind the private repos</text>
+  <text x="28" y="66" class="subtitle" fill="#c9c0ba">Last 12 months, numbers only. No code leaves the building.</text>
+  <text x="792" y="44" class="small" text-anchor="end" fill="#a09690">updated 2026-11-28</text>
+  
+    <rect x="28" y="88" width="182" height="72" rx="8" fill="#1d242d"/>
+    <text x="44" y="124" class="value" fill="#f5f1ee">2,896</text>
+    <text x="44" y="146" class="label" fill="#c9c0ba">commits by hand</text>
+    <rect x="222" y="88" width="182" height="72" rx="8" fill="#1d242d"/>
+    <text x="238" y="124" class="value" fill="#f5f1ee">221</text>
+    <text x="238" y="146" class="label" fill="#c9c0ba">active days</text>
+    <rect x="416" y="88" width="182" height="72" rx="8" fill="#1d242d"/>
+    <text x="432" y="124" class="value" fill="#f5f1ee">14 days</text>
+    <text x="432" y="146" class="label" fill="#c9c0ba">longest streak</text>
+    <rect x="610" y="88" width="182" height="72" rx="8" fill="#1d242d"/>
+    <text x="626" y="124" class="value" fill="#f5f1ee">25</text>
+    <text x="626" y="146" class="label" fill="#c9c0ba">repos touched</text>
+  
+    <rect x="28" y="172" width="376" height="72" rx="8" fill="#1d242d"/>
+    <text x="44" y="208" class="value" fill="#f5f1ee">974</text>
+    <text x="44" y="230" class="label" fill="#c9c0ba">pull requests merged</text>
+    <rect x="416" y="172" width="376" height="72" rx="8" fill="#1d242d"/>
+    <text x="432" y="208" class="value" fill="#f5f1ee">94 %</text>
+    <text x="432" y="230" class="label" fill="#c9c0ba">of 1,038 opened PRs merged</text>
+  <g transform="translate(0 84)">
+  
+    <text x="28" y="184" class="heading" fill="#f5f1ee">What I commit</text>
+    <path d="M32,198H81.23756906077347V212H32Q28,212 28,208V202Q28,198 32,198Z" fill="#3a95d0"><title>feat: 438 (15 %)</title></path><path d="M83.23756906077347,198H141.21546961325964V212H83.23756906077347V198Z" fill="#d95926"><title>fix: 477 (16 %)</title></path><path d="M143.21546961325964,198H178.585635359116V212H143.21546961325964V198Z" fill="#199e70"><title>chore, docs &amp; tests: 291 (10 %)</title></path><path d="M180.585635359116,198H233.82320441988946V212H180.585635359116V198Z" fill="#9085e9"><title>refactor &amp; style: 438 (15 %)</title></path><path d="M235.82320441988946,198H383.99999999999994Q387.99999999999994,198 387.99999999999994,202V208Q387.99999999999994,212 383.99999999999994,212H235.82320441988946V198Z" fill="#d55181"><title>freestyle (no prefix): 1,252 (43 %)</title></path>
+    <rect x="28" y="231" width="10" height="10" rx="2" fill="#3a95d0"/>
+    <text x="46" y="240" class="small" fill="#c9c0ba"><tspan fill="#f5f1ee" font-weight="600">15 %</tspan>  feat</text>
+    <rect x="28" y="255" width="10" height="10" rx="2" fill="#d95926"/>
+    <text x="46" y="264" class="small" fill="#c9c0ba"><tspan fill="#f5f1ee" font-weight="600">16 %</tspan>  fix</text>
+    <rect x="28" y="279" width="10" height="10" rx="2" fill="#199e70"/>
+    <text x="46" y="288" class="small" fill="#c9c0ba"><tspan fill="#f5f1ee" font-weight="600">10 %</tspan>  chore, docs &amp; tests</text>
+    <rect x="214" y="231" width="10" height="10" rx="2" fill="#9085e9"/>
+    <text x="232" y="240" class="small" fill="#c9c0ba"><tspan fill="#f5f1ee" font-weight="600">15 %</tspan>  refactor &amp; style</text>
+    <rect x="214" y="255" width="10" height="10" rx="2" fill="#d55181"/>
+    <text x="232" y="264" class="small" fill="#c9c0ba"><tspan fill="#f5f1ee" font-weight="600">43 %</tspan>  freestyle (no prefix)</text>
+  
+    <text x="432" y="184" class="heading" fill="#f5f1ee">When I commit <tspan class="small" font-weight="400" fill="#a09690">(Berlin time)</tspan></text>
+    <line x1="432" x2="792" y1="290.5" y2="290.5" stroke="#3d444d"/>
+    <path d="M522,290V290Q522,288 524,288H532Q534,288 534,290V290Z" fill="#3a95d0"><title>06:00 – 2 commits</title></path><path d="M537,290V271.51612903225805Q537,267.51612903225805 541,267.51612903225805H545Q549,267.51612903225805 549,271.51612903225805V290Z" fill="#3a95d0"><title>07:00 – 102 commits</title></path><path d="M552,290V218.39247311827955Q552,214.39247311827955 556,214.39247311827955H560Q564,214.39247311827955 564,218.39247311827955V290Z" fill="#3a95d0"><title>08:00 – 343 commits</title></path><path d="M567,290V212Q567,208 571,208H575Q579,208 579,212V290Z" fill="#d95926"><title>09:00 – 372 commits</title></path><path d="M582,290V226.76881720430106Q582,222.76881720430106 586,222.76881720430106H590Q594,222.76881720430106 594,226.76881720430106V290Z" fill="#3a95d0"><title>10:00 – 305 commits</title></path><path d="M597,290V225.88709677419354Q597,221.88709677419354 601,221.88709677419354H605Q609,221.88709677419354 609,225.88709677419354V290Z" fill="#3a95d0"><title>11:00 – 309 commits</title></path><path d="M612,290V235.80645161290323Q612,231.80645161290323 616,231.80645161290323H620Q624,231.80645161290323 624,235.80645161290323V290Z" fill="#3a95d0"><title>12:00 – 264 commits</title></path><path d="M627,290V228.09139784946237Q627,224.09139784946237 631,224.09139784946237H635Q639,224.09139784946237 639,228.09139784946237V290Z" fill="#3a95d0"><title>13:00 – 299 commits</title></path><path d="M642,290V226.76881720430106Q642,222.76881720430106 646,222.76881720430106H650Q654,222.76881720430106 654,226.76881720430106V290Z" fill="#3a95d0"><title>14:00 – 305 commits</title></path><path d="M657,290V236.90860215053763Q657,232.90860215053763 661,232.90860215053763H665Q669,232.90860215053763 669,236.90860215053763V290Z" fill="#3a95d0"><title>15:00 – 259 commits</title></path><path d="M672,290V264.241935483871Q672,260.241935483871 676,260.241935483871H680Q684,260.241935483871 684,264.241935483871V290Z" fill="#3a95d0"><title>16:00 – 135 commits</title></path><path d="M687,290V283.1989247311828Q687,279.1989247311828 691,279.1989247311828H695Q699,279.1989247311828 699,283.1989247311828V290Z" fill="#3a95d0"><title>17:00 – 49 commits</title></path><path d="M702,290V287.60752688172045Q702,283.60752688172045 706,283.60752688172045H710Q714,283.60752688172045 714,287.60752688172045V290Z" fill="#3a95d0"><title>18:00 – 29 commits</title></path><path d="M717,290V282.97849462365593Q717,278.97849462365593 721,278.97849462365593H725Q729,278.97849462365593 729,282.97849462365593V290Z" fill="#3a95d0"><title>19:00 – 50 commits</title></path><path d="M732,290V287.8279569892473Q732,283.8279569892473 736,283.8279569892473H740Q744,283.8279569892473 744,287.8279569892473V290Z" fill="#3a95d0"><title>20:00 – 28 commits</title></path><path d="M747,290V288.7096774193548Q747,284.7096774193548 751,284.7096774193548H755Q759,284.7096774193548 759,288.7096774193548V290Z" fill="#3a95d0"><title>21:00 – 24 commits</title></path><path d="M762,290V290Q762,286.4731182795699 765.5268817204301,286.4731182795699H770.4731182795699Q774,286.4731182795699 774,290V290Z" fill="#3a95d0"><title>22:00 – 16 commits</title></path><path d="M777,290V290Q777,288 779,288H787Q789,288 789,290V290Z" fill="#3a95d0"><title>23:00 – 5 commits</title></path><text x="573" y="200" class="small" text-anchor="middle" fill="#f5f1ee" font-weight="600">peak 09:00</text><text x="438" y="308" class="small" text-anchor="middle" fill="#a09690">00:00</text><text x="528" y="308" class="small" text-anchor="middle" fill="#a09690">06:00</text><text x="618" y="308" class="small" text-anchor="middle" fill="#a09690">12:00</text><text x="708" y="308" class="small" text-anchor="middle" fill="#a09690">18:00</text>
+    <text x="432" y="336" class="small" fill="#c9c0ba">Night owl 0.7 % · weekend 2.6 % · busiest day Friday</text>
+  </g>
+  <text x="28" y="440" class="small" fill="#a09690">Deploy-bot commits are not counted.</text>
+</svg>
